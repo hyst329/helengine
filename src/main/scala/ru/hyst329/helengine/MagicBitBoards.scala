@@ -215,12 +215,15 @@ object MagicBitBoards {
     val rookStream   = getClass.getResourceAsStream("/RookAttackTable.dat")
     val bishopStream = getClass.getResourceAsStream("/BishopAttackTable.dat")
     (0 to 63).foreach { square =>
-      val rookBytes   = rookStream.readNBytes(4096 * 8)
-      val bishopBytes = bishopStream.readNBytes(512 * 8)
+      val rookBytes: Array[Byte] = Array.ofDim(4096 * 8)
+      val bishopBytes: Array[Byte] = Array.ofDim(512 * 8)
+      rookStream.read(rookBytes, 0, rookBytes.length)
+      bishopStream.read(bishopBytes, 0, bishopBytes.length)
       ByteBuffer
         .allocate(rookBytes.length)
         .put(rookBytes)
         .flip()
+        .asInstanceOf[ByteBuffer]
         .order(ByteOrder.LITTLE_ENDIAN)
         .asLongBuffer()
         .get(RookAttackTable(square))
@@ -228,6 +231,7 @@ object MagicBitBoards {
         .allocate(bishopBytes.length)
         .put(bishopBytes)
         .flip()
+        .asInstanceOf[ByteBuffer]
         .order(ByteOrder.LITTLE_ENDIAN)
         .asLongBuffer()
         .get(BishopAttackTable(square))

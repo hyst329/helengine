@@ -11,4 +11,9 @@ libraryDependencies += "org.parboiled" %% "parboiled" % "2.1.7"
 
 enablePlugins(GraalVMNativeImagePlugin)
 
-graalVMNativeImageOptions := Seq("--initialize-at-build-time=scala.Function0")
+graalVMNativeImageOptions := Seq(
+  "-H:IncludeResources=.*\\.dat",
+  "--initialize-at-build-time",
+  "--initialize-at-run-time=ru.hyst329.helengine.MagicBitBoards$",
+  //"--allow-incomplete-classpath",
+  "--no-fallback")
