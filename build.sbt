@@ -8,3 +8,7 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
 libraryDependencies += "org.parboiled" %% "parboiled" % "2.1.7"
+
+enablePlugins(GraalVMNativeImagePlugin)
+
+graalVMNativeImageOptions := Seq("--initialize-at-build-time=scala.Function0")
