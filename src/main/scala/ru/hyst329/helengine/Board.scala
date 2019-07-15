@@ -2,12 +2,14 @@ package ru.hyst329.helengine
 
 import ru.hyst329.helengine.Global._
 
-case class Board(var bitBoards: Array[BitBoard],
-                 var enPassantSquare: Square,
-                 var castlingFlags: CastlingFlags,
-                 var moveNumber: Int,
-                 var halfmoveCounter: Int,
-                 var whiteToMove: Boolean) {
+case class Board(
+    var bitBoards: Array[BitBoard],
+    var enPassantSquare: Square,
+    var castlingFlags: CastlingFlags,
+    var moveNumber: Int,
+    var halfmoveCounter: Int,
+    var whiteToMove: Boolean
+) {
 
   // Occupied squares bit boards
   def occupationWhite: BitBoard =
@@ -19,8 +21,18 @@ case class Board(var bitBoards: Array[BitBoard],
       bitBoards(BlackRook) | bitBoards(BlackQueen) | bitBoards(BlackKing)
 
   def occupationAll: BitBoard = occupationWhite | occupationBlack
-}
 
+  def occupationCurrentSide: BitBoard  = if (whiteToMove) occupationWhite else occupationBlack
+  def occupationOppositeSide: BitBoard = if (whiteToMove) occupationBlack else occupationWhite
+
+  def getPiece(square: Square): Piece = {
+    val mask = 1l << square
+    (Empty.toInt to BlackKing).foreach { piece =>
+      if ((bitBoards(piece) & mask) != 0) return piece.toByte
+    }
+    Empty
+  }
+}
 
 object Board {
   def fromFEN(fen: String): Option[Board] = {

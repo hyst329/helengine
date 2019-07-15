@@ -10,20 +10,28 @@ class FENParser(val input: ParserInput) extends Parser {
 
   def position: Rule1[Board] = rule {
     piecePlacement ~ ws ~ activeColor ~ ws ~ castling ~ ws ~ enPassant ~ ws ~ halfmoveCounter ~ ws ~ moveNumber ~> (
-      (pieces: Array[BitBoard], whiteToMove: Boolean, castlingFlags: CastlingFlags, enPassantSquare: Square,
-      halfmoves: Int, moves: Int) => {
+        (
+            pieces: Array[BitBoard],
+            whiteToMove: Boolean,
+            castlingFlags: CastlingFlags,
+            enPassantSquare: Square,
+            halfmoves: Int,
+            moves: Int
+        ) => {
           Board(pieces, enPassantSquare, castlingFlags, moves, halfmoves, whiteToMove)
-      }
+        }
     )
   }
 
   def piecePlacement: Rule1[Array[BitBoard]] = rule {
     8.times(rankString).separatedBy("/") ~> ((ranks: Seq[Array[Piece]]) => {
       val boards = Array.fill[BitBoard](PieceCount)(0x0l)
-      (7 to 0 by -1).zip(ranks).foreach { case (rank: Int, files: Array[Piece]) =>
-        (0 to 7).zip(files).foreach { case (file: Int, piece: Piece) =>
-          boards(piece) |= 1L << (rank * 8 + file)
-        }
+      (7 to 0 by -1).zip(ranks).foreach {
+        case (rank: Int, files: Array[Piece]) =>
+          (0 to 7).zip(files).foreach {
+            case (file: Int, piece: Piece) =>
+              boards(piece) |= 1l << (rank * 8 + file)
+          }
       }
       boards
     })
