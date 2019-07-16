@@ -7,5 +7,12 @@ case class Move(
     to: Square,
     captures: Piece,
     oldEnPassant: Square,
-    oldCastling: CastlingFlags
+    oldCastling: CastlingFlags,
+    promotesTo: Piece = Empty
 )
+
+object Move {
+  def fromBoardContext(board: Board, from: Square, to: Square, promotesTo: Piece = Empty) = Move(
+    from, to, board.getPiece(to), board.enPassantSquare, board.castlingFlags, promotesTo
+  )
+}
