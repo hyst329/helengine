@@ -12,7 +12,7 @@ case class Move(
 )
 
 object Move {
-  val PieceAbbreviations = Map(
+  val PieceAbbreviations: Map[Piece, String] = Map(
     Empty       -> "",
     WhitePawn   -> "",
     WhiteKnight -> "N",
