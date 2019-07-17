@@ -92,4 +92,6 @@ object Global {
   val F8: Square = 61
   val G8: Square = 62
   val H8: Square = 63
+
+  val InvalidSquare: Square = -1
 }

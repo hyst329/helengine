@@ -104,7 +104,7 @@ class FENParser(val input: ParserInput) extends Parser {
   }
 
   def enPassant: Rule1[Square] = rule {
-    (str("-") ~> (() => 0.toByte)) |
+    (str("-") ~> (() => InvalidSquare)) |
       (capture(anyOf("abcdefgh")) ~> ((file: String) => file.head - 'a') ~
         capture(anyOf("12345678")) ~> ((rank: String) => rank.head - '8')) ~>
         ((file: Int, rank: Int) => (rank * 8 + file).toByte)

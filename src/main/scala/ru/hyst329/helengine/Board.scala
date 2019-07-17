@@ -20,7 +20,7 @@ case class Board(
     bitBoards(BlackPawn) | bitBoards(BlackKnight) | bitBoards(BlackBishop) |
       bitBoards(BlackRook) | bitBoards(BlackQueen) | bitBoards(BlackKing)
 
-  def occupationAll: BitBoard = occupationWhite | occupationBlack
+  def occupationAll: BitBoard = ~bitBoards(Empty)
 
   def occupationCurrentSide: BitBoard  = if (whiteToMove) occupationWhite else occupationBlack
   def occupationOppositeSide: BitBoard = if (whiteToMove) occupationBlack else occupationWhite
