@@ -94,4 +94,10 @@ object Global {
   val H8: Square = 63
 
   val InvalidSquare: Square = -1
+
+  // Castling flags
+  val WhiteKingSide: CastlingFlags  = 1
+  val WhiteQueenSide: CastlingFlags = 2
+  val BlackKingSide: CastlingFlags  = 4
+  val BlackQueenSide: CastlingFlags = 8
 }

@@ -26,12 +26,22 @@ case class Board(
   def occupationOppositeSide: BitBoard = if (whiteToMove) occupationBlack else occupationWhite
 
   def getPiece(square: Square): Piece = {
-    val mask = 1l << square
+    val mask = 1L << square
     (Empty.toInt to BlackKing).foreach { piece =>
       if ((bitBoards(piece) & mask) != 0) return piece.toByte
     }
     Empty
   }
+
+  def makeMove(move: Move): Unit = {
+    ???
+  }
+
+  def unmakeMove(): Move = {
+    ???
+  }
+
+  def switchSides(): Unit = this.whiteToMove = !this.whiteToMove
 }
 
 object Board {

@@ -41,10 +41,12 @@ object Move {
 
   def toNotation(move: Move, board: Board): String = {
     val fromPiece = board.getPiece(move.from)
-    val toPiece = board.getPiece(move.to)
+    val toPiece   = board.getPiece(move.to)
     toPiece match {
-      case Empty => s"${PieceAbbreviations(fromPiece)}${squareToAlgebraic(move.from)}-${squareToAlgebraic(move.to)}"
-      case _ => s"${PieceAbbreviations(fromPiece)}${squareToAlgebraic(move.from)}x${squareToAlgebraic(move.to)}"
+      case Empty =>
+        s"${PieceAbbreviations(fromPiece)}${squareToAlgebraic(move.from)}-${squareToAlgebraic(move.to)}"
+      case _ =>
+        s"${PieceAbbreviations(fromPiece)}${squareToAlgebraic(move.from)}x${squareToAlgebraic(move.to)}"
     }
   }
 }

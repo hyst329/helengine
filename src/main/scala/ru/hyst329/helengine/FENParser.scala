@@ -25,12 +25,12 @@ class FENParser(val input: ParserInput) extends Parser {
 
   def piecePlacement: Rule1[Array[BitBoard]] = rule {
     8.times(rankString).separatedBy("/") ~> ((ranks: Seq[Array[Piece]]) => {
-      val boards = Array.fill[BitBoard](PieceCount)(0x0l)
+      val boards = Array.fill[BitBoard](PieceCount)(0X0L)
       (7 to 0 by -1).zip(ranks).foreach {
         case (rank: Int, files: Array[Piece]) =>
           (0 to 7).zip(files).foreach {
             case (file: Int, piece: Piece) =>
-              boards(piece) |= 1l << (rank * 8 + file)
+              boards(piece) |= 1L << (rank * 8 + file)
           }
       }
       boards
