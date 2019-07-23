@@ -1,6 +1,7 @@
 package ru.hyst329.helengine
 
 import java.nio.{ByteBuffer, ByteOrder}
+import java.security.SecureRandom
 
 import ru.hyst329.helengine.Global._
 
@@ -209,6 +210,8 @@ object MagicBitBoards {
   val RookAttackTable: Array[Array[BitBoard]]   = Array.ofDim(64, 4096)
   val BishopAttackTable: Array[Array[BitBoard]] = Array.ofDim(64, 512)
 
+  val ZobristTable: Array[Array[BitBoard]] = Array.ofDim(64, 13)
+
   {
     // Initialisation block for rook/bishop attacks
     val rookStream   = getClass.getResourceAsStream("/RookAttackTable.dat")
@@ -234,6 +237,20 @@ object MagicBitBoards {
         .order(ByteOrder.LITTLE_ENDIAN)
         .asLongBuffer()
         .get(BishopAttackTable(square))
+    }
+    // Initialisation block for Zobrist tables
+    val random = new SecureRandom
+    AllSquares.foreach { square =>
+      val buff: Array[Byte] = Array.ofDim(13 * 8)
+      random.nextBytes(buff)
+      ByteBuffer
+        .allocate(buff.length)
+        .put(buff)
+        .flip()
+        .asInstanceOf[ByteBuffer]
+        .order(ByteOrder.LITTLE_ENDIAN)
+        .asLongBuffer()
+        .get(ZobristTable(square))
     }
   }
 }

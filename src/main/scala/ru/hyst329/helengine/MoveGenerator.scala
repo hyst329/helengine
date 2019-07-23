@@ -109,20 +109,60 @@ object MoveGenerator {
     result
   }
 
-  def generateLegal(board: Board): List[Move] = generatePseudoLegal(board).filter(checkLegality(board, _))
+  def generateLegal(board: Board): List[Move] =
+    generatePseudoLegal(board).filter(checkLegality(board, _))
 
   def checkLegality(board: Board, move: Move): Boolean = {
+    val normalisedMove = move.castlingToPlain
     board.makeMove(move)
     board.switchSides()
-    val result = detectCheck(board)
-    // TODO: Cover castling through check
+    val checkBitBoard = detectCheck(board)
     board.switchSides()
     board.unmakeMove()
-    result
+    normalisedMove match {
+      case Some(m) =>
+        // Checking for castling out of check
+        if (detectCheck(board) != 0) return false
+        // Checking for castling through check
+        board.makeMove(m)
+        board.switchSides()
+        val checkBitBoard = detectCheck(board)
+        board.switchSides()
+        board.unmakeMove()
+      case None => // do nothing if it's a plain move, not a castling
+    }
+    checkBitBoard != 0
   }
 
   def detectCheck(board: Board): BitBoard = {
-    ???
+    var result = 0L
+    val (pawn, knight, rook, bishop, queen, king) = if (!board.whiteToMove) {
+      (WhitePawn, WhiteKnight, WhiteRook, WhiteBishop, WhiteQueen, WhiteKing)
+    } else {
+      (BlackPawn, BlackKnight, BlackRook, BlackBishop, BlackQueen, BlackKing)
+    }
+    val pawnCapturePatterns =
+      if (board.whiteToMove) MagicBitBoards.WhitePawnCapturePatterns
+      else MagicBitBoards.BlackPawnCapturePatterns
+    val ownKing         = if (board.whiteToMove) WhiteKing else BlackKing
+    val ownKingSquare   = java.lang.Long.numberOfTrailingZeros(board.bitBoards(ownKing))
+    val enemyKingSquare = java.lang.Long.numberOfTrailingZeros(board.bitBoards(king))
+    // Rooks, bishops and queens
+    val bishopAttacks: BitBoard = MagicBitBoards.BishopAttackTable(ownKingSquare)(
+      (((board.occupationAll & MagicBitBoards.BishopMasks(ownKingSquare)) * MagicBitBoards
+        .BishopMagic(ownKingSquare)) >> (64 - MagicBitBoards.BishopBits(ownKingSquare))).toInt)
+    val rookAttacks: BitBoard = MagicBitBoards.RookAttackTable(ownKingSquare)(
+      (((board.occupationAll & MagicBitBoards.RookMasks(ownKingSquare)) * MagicBitBoards
+        .RookMagic(ownKingSquare)) >> (64 - MagicBitBoards.RookBits(ownKingSquare))).toInt)
+    result |= (bishopAttacks & (board.bitBoards(bishop) | board.bitBoards(queen)))
+    result |= (rookAttacks & (board.bitBoards(rook) | board.bitBoards(queen)))
+    // Kings
+    result |= (MagicBitBoards.KingPatterns(ownKingSquare) & board.bitBoards(king))
+    // Knights
+    result |= (MagicBitBoards.KnightPatterns(ownKingSquare) & board.bitBoards(knight))
+    // Pawns
+    result |= (pawnCapturePatterns(ownKingSquare) & board.bitBoards(pawn))
+    result
   }
 
   def perft(board: Board, depth: Int): Long = {
@@ -130,8 +170,8 @@ object MoveGenerator {
     if (depth == 0) {
       return 1L
     }
-    var result = 0
-    val moves = generateLegal(board)
+    var result = 0L
+    val moves  = generateLegal(board)
     if (depth == 1) {
       return moves.length
     }
