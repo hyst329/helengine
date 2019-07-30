@@ -210,7 +210,7 @@ object MagicBitBoards {
   val RookAttackTable: Array[Array[BitBoard]]   = Array.ofDim(64, 4096)
   val BishopAttackTable: Array[Array[BitBoard]] = Array.ofDim(64, 512)
 
-  val ZobristTable: Array[Array[BitBoard]] = Array.ofDim(64, 13)
+  val ZobristTable: Array[Array[Hash]] = Array.ofDim(64, 13)
 
   {
     // Initialisation block for rook/bishop attacks
@@ -251,6 +251,7 @@ object MagicBitBoards {
         .order(ByteOrder.LITTLE_ENDIAN)
         .asLongBuffer()
         .get(ZobristTable(square))
+      ZobristTable(square).indices.foreach(idx => ZobristTable(square)(idx) = Math.abs(ZobristTable(square)(idx)))
     }
   }
 }

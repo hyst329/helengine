@@ -5,6 +5,7 @@ object Global {
   type Square        = Byte
   type BitBoard      = Long
   type CastlingFlags = Byte
+  type Hash          = Long
 
   private implicit def intToByte(i: Int) = i.toByte
 

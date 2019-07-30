@@ -5,23 +5,24 @@ import ru.hyst329.helengine.Global._
 case class Move(
     from: Square,
     to: Square,
+    movingPiece: Piece,
     captures: Piece,
     oldEnPassant: Square,
     oldCastling: CastlingFlags,
     oldHalfmoveCounter: Int,
-    promotesTo: Piece = Empty
+    promotesTo: Piece
 ) {
   def castlingToPlain: Option[Move] = this match {
-    case Move(_from, _to, Empty, _, _oldCastling, _, Empty)
+    case Move(_from, _to, WhiteKing, Empty, _, _oldCastling, _, Empty)
         if _from == E1 && _to == G1 && (_oldCastling & WhiteKingSide) != 0 =>
       Some(this.copy(to = F1))
-    case Move(_from, _to, Empty, _, _oldCastling, _, Empty)
+    case Move(_from, _to, WhiteKing, Empty, _, _oldCastling, _, Empty)
         if _from == E1 && _to == C1 && (_oldCastling & WhiteQueenSide) != 0 =>
       Some(this.copy(to = D1))
-    case Move(_from, _to, Empty, _, _oldCastling, _, Empty)
+    case Move(_from, _to, BlackKing, Empty, _, _oldCastling, _, Empty)
         if _from == E8 && _to == G8 && (_oldCastling & BlackKingSide) != 0 =>
       Some(this.copy(to = F8))
-    case Move(_from, _to, Empty, _, _oldCastling, _, Empty)
+    case Move(_from, _to, BlackKing, Empty, _, _oldCastling, _, Empty)
         if _from == E8 && _to == C8 && (_oldCastling & BlackQueenSide) != 0 =>
       Some(this.copy(to = D8))
     case _ => None
@@ -50,6 +51,7 @@ object Move {
   def fromBoardContext(board: Board, from: Square, to: Square, promotesTo: Piece = Empty) = Move(
     from,
     to,
+    board.getPiece(from),
     board.getPiece(to),
     board.enPassantSquare,
     board.castlingFlags,
@@ -58,8 +60,8 @@ object Move {
   )
 
   def toNotation(move: Move, board: Board): String = {
-    val fromPiece = board.getPiece(move.from)
-    val toPiece   = board.getPiece(move.to)
+    val fromPiece = move.movingPiece
+    val toPiece   = move.captures
     toPiece match {
       case Empty =>
         s"${PieceAbbreviations(fromPiece)}${squareToAlgebraic(move.from)}-${squareToAlgebraic(move.to)}"
