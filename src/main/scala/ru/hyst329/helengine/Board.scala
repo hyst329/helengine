@@ -14,20 +14,20 @@ case class Board(
 ) {
 
   // Occupied squares bit boards
-  def occupationWhite: BitBoard =
+  @inline def occupationWhite: BitBoard =
     bitBoards(WhitePawn) | bitBoards(WhiteKnight) | bitBoards(WhiteBishop) |
       bitBoards(WhiteRook) | bitBoards(WhiteQueen) | bitBoards(WhiteKing)
 
-  def occupationBlack: BitBoard =
+  @inline def occupationBlack: BitBoard =
     bitBoards(BlackPawn) | bitBoards(BlackKnight) | bitBoards(BlackBishop) |
       bitBoards(BlackRook) | bitBoards(BlackQueen) | bitBoards(BlackKing)
 
-  def occupationAll: BitBoard = ~bitBoards(Empty)
+  @inline def occupationAll: BitBoard = ~bitBoards(Empty)
 
-  def occupationCurrentSide: BitBoard  = if (whiteToMove) occupationWhite else occupationBlack
-  def occupationOppositeSide: BitBoard = if (whiteToMove) occupationBlack else occupationWhite
+  @inline def occupationCurrentSide: BitBoard  = if (whiteToMove) occupationWhite else occupationBlack
+  @inline def occupationOppositeSide: BitBoard = if (whiteToMove) occupationBlack else occupationWhite
 
-  def getPiece(square: Square): Piece = {
+  @inline def getPiece(square: Square): Piece = {
     val mask = 1L << square
     (Empty.toInt to BlackKing).foreach { piece =>
       if ((bitBoards(piece) & mask) != 0) return piece.toByte
@@ -44,7 +44,7 @@ case class Board(
 
   def makeMove(move: Move): Unit = {
     bitBoards(move.movingPiece) &= ~(1L << move.from)
-    bitBoards(move.movingPiece) |= (1L << move.to)
+    bitBoards(if(move.promotesTo != Empty) move.promotesTo else move.movingPiece) |= (1L << move.to)
     bitBoards(move.captures) &= ~(1L << move.to)
     hash ^= MagicBitBoards.ZobristTable(move.from)(move.movingPiece)
     hash ^= MagicBitBoards.ZobristTable(move.to)(move.captures)
@@ -96,16 +96,39 @@ case class Board(
     if (move.movingPiece == BlackRook && move.from == A8) {
       castlingFlags &= ~BlackQueenSide
     }
-    whiteToMove = !whiteToMove
+    switchSides()
     moves += move
+    // TODO: En passant flag and move counters
+    if (whiteToMove) moveNumber += 1
+    if (move.movingPiece != BlackPawn && move.movingPiece != WhitePawn && move.captures == Empty)
+      halfmoveCounter += 1
+    else
+      halfmoveCounter = 0
     ???
   }
 
   def unmakeMove(): Move = {
+    val move = moves.last
+    moves.remove(moves.size - 1)
+    bitBoards(move.movingPiece) |= (1L << move.from)
+    bitBoards(if(move.promotesTo != Empty) move.promotesTo else move.movingPiece) &= ~(1L << move.to)
+    bitBoards(move.captures) |= (1L << move.to)
+    hash ^= MagicBitBoards.ZobristTable(move.from)(move.movingPiece)
+    hash ^= MagicBitBoards.ZobristTable(move.to)(move.captures)
+    hash ^= MagicBitBoards.ZobristTable(move.to)(move.movingPiece)
+    hash = -hash
+    // TODO: Castling move rook back
     ???
+    // Old flags
+    switchSides()
+    enPassantSquare = move.oldEnPassant
+    castlingFlags = move.oldCastling
+    halfmoveCounter = move.oldCastling
+    if (!whiteToMove) moveNumber -= 1
+    move
   }
 
-  def switchSides(): Unit = this.whiteToMove = !this.whiteToMove
+  @inline def switchSides(): Unit = this.whiteToMove = !this.whiteToMove
 }
 
 object Board {
