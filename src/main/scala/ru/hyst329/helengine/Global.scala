@@ -7,7 +7,7 @@ object Global {
   type CastlingFlags = Byte
   type Hash          = Long
 
-  private implicit def intToByte(i: Int) = i.toByte
+  implicit def intToByte(i: Int): Square = i.toByte
 
   val Empty: Piece       = 0
   val WhitePawn: Piece   = 1
@@ -101,4 +101,21 @@ object Global {
   val WhiteQueenSide: CastlingFlags = 2
   val BlackKingSide: CastlingFlags  = 4
   val BlackQueenSide: CastlingFlags = 8
+
+  // Piece letters for FEN
+  val PieceLetters: Map[Piece, Char] = Map(
+    WhitePawn -> 'P',
+    WhiteKnight -> 'N',
+    WhiteBishop -> 'B',
+    WhiteRook -> 'R',
+    WhiteQueen -> 'Q',
+    WhiteKing -> 'K',
+    BlackPawn -> 'p',
+    BlackKnight -> 'n',
+    BlackBishop -> 'b',
+    BlackRook -> 'r',
+    BlackQueen -> 'q',
+    BlackKing -> 'k',
+    Empty -> '_'
+  )
 }

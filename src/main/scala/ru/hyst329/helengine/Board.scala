@@ -98,13 +98,16 @@ case class Board(
     }
     switchSides()
     moves += move
-    // TODO: En passant flag and move counters
+    if ((move.movingPiece == WhitePawn && move.to - move.from == 16) || (move.movingPiece == BlackPawn && move.from - move.to == 16))
+      enPassantSquare = ((move.from + move.to) >>> 1).toByte
+    else
+      enPassantSquare = InvalidSquare
     if (whiteToMove) moveNumber += 1
     if (move.movingPiece != BlackPawn && move.movingPiece != WhitePawn && move.captures == Empty)
       halfmoveCounter += 1
     else
       halfmoveCounter = 0
-    ???
+    // Probably all, but still needs testing
   }
 
   def unmakeMove(): Move = {
@@ -118,7 +121,32 @@ case class Board(
     hash ^= MagicBitBoards.ZobristTable(move.to)(move.movingPiece)
     hash = -hash
     // TODO: Castling move rook back
-    ???
+    if (move.castlingToPlain.isDefined) {
+      // castling, so we need to move the rook, not only the king
+      move.to match {
+        case G1 => // white castles king-side
+          bitBoards(WhiteRook) |=  (1L << H1)
+          bitBoards(WhiteRook) &= ~(1L << F1)
+          hash ^= MagicBitBoards.ZobristTable(H1)(WhiteRook)
+          hash ^= MagicBitBoards.ZobristTable(F1)(WhiteRook)
+        case C1 => // white castles queen-side
+          bitBoards(WhiteRook) |=  (1L << A1)
+          bitBoards(WhiteRook) &= ~(1L << D1)
+          hash ^= MagicBitBoards.ZobristTable(A1)(WhiteRook)
+          hash ^= MagicBitBoards.ZobristTable(D1)(WhiteRook)
+        case G8 => // black castles king-side
+          bitBoards(BlackRook) |=  (1L << H8)
+          bitBoards(BlackRook) &= ~(1L << F8)
+          hash ^= MagicBitBoards.ZobristTable(H8)(BlackRook)
+          hash ^= MagicBitBoards.ZobristTable(F8)(BlackRook)
+        case C8 => // black castles queen-side
+          bitBoards(BlackRook) |=  (1L << A8)
+          bitBoards(BlackRook) &= ~(1L << D8)
+          hash ^= MagicBitBoards.ZobristTable(A8)(BlackRook)
+          hash ^= MagicBitBoards.ZobristTable(D8)(BlackRook)
+        case _ =>
+      }
+    }
     // Old flags
     switchSides()
     enPassantSquare = move.oldEnPassant
@@ -129,6 +157,22 @@ case class Board(
   }
 
   @inline def switchSides(): Unit = this.whiteToMove = !this.whiteToMove
+
+  override def toString: String = {
+    (7 to 0 by -1).map { rank =>
+      (0 to 7).map { file =>
+        Global.PieceLetters(getPiece(rank * 8 + file))
+      }.mkString("")
+    }.mkString("/")
+      .replace("________", "8")
+      .replace("_______", "7")
+      .replace("______", "6")
+      .replace("_____", "5")
+      .replace("____", "4")
+      .replace("___", "3")
+      .replace("__", "2")
+      .replace("_", "1")
+  }
 }
 
 object Board {

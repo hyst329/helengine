@@ -94,16 +94,16 @@ object MoveGenerator {
       }
     }
     // Castling
-    if (board.whiteToMove && (board.castlingFlags & WhiteKingSide) != 0 && (board.bitBoards(Empty) & (1L << F1)) != 0) {
+    if (board.whiteToMove && (board.castlingFlags & WhiteKingSide) != 0 && (board.bitBoards(Empty) & (1L << F1 | 1L << G1)) == (1L << F1 | 1L << G1)) {
       result +:= Move.fromBoardContext(board, E1, G1)
     }
-    if (board.whiteToMove && (board.castlingFlags & WhiteQueenSide) != 0 && (board.bitBoards(Empty) & (1L << C1 | 1L << B1)) != 0) {
+    if (board.whiteToMove && (board.castlingFlags & WhiteQueenSide) != 0 && (board.bitBoards(Empty) & (1L << D1 | 1L << C1 | 1L << B1)) == (1L << D1 | 1L << C1 | 1L << B1)) {
       result +:= Move.fromBoardContext(board, E1, C1)
     }
-    if (!board.whiteToMove && (board.castlingFlags & BlackKingSide) != 0 && (board.bitBoards(Empty) & (1L << F8)) != 0) {
+    if (!board.whiteToMove && (board.castlingFlags & BlackKingSide) != 0 && (board.bitBoards(Empty) & (1L << F8 | 1L << G8)) == (1L << F8 | 1L << G8)) {
       result +:= Move.fromBoardContext(board, E8, G8)
     }
-    if (!board.whiteToMove && (board.castlingFlags & BlackQueenSide) != 0 && (board.bitBoards(Empty) & (1L << C8 | 1L << B8)) != 0) {
+    if (!board.whiteToMove && (board.castlingFlags & BlackQueenSide) != 0 && (board.bitBoards(Empty) & (1L << D8 | 1L << C1 | 1L << B8)) == (1L << D8 | 1L << C1 | 1L << B8)) {
       result +:= Move.fromBoardContext(board, E8, C8)
     }
     result
@@ -116,7 +116,7 @@ object MoveGenerator {
     val normalisedMove = move.castlingToPlain
     board.makeMove(move)
     board.switchSides()
-    val checkBitBoard = detectCheck(board)
+    var checkBitBoard = detectCheck(board)
     board.switchSides()
     board.unmakeMove()
     normalisedMove match {
@@ -126,12 +126,12 @@ object MoveGenerator {
         // Checking for castling through check
         board.makeMove(m)
         board.switchSides()
-        val checkBitBoard = detectCheck(board)
+        checkBitBoard |= detectCheck(board)
         board.switchSides()
         board.unmakeMove()
       case None => // do nothing if it's a plain move, not a castling
     }
-    checkBitBoard != 0
+    checkBitBoard == 0
   }
 
   def detectCheck(board: Board): BitBoard = {
@@ -150,10 +150,10 @@ object MoveGenerator {
     // Rooks, bishops and queens
     val bishopAttacks: BitBoard = MagicBitBoards.BishopAttackTable(ownKingSquare)(
       (((board.occupationAll & MagicBitBoards.BishopMasks(ownKingSquare)) * MagicBitBoards
-        .BishopMagic(ownKingSquare)) >> (64 - MagicBitBoards.BishopBits(ownKingSquare))).toInt)
+        .BishopMagic(ownKingSquare)) >>> (64 - MagicBitBoards.BishopBits(ownKingSquare))).toInt)
     val rookAttacks: BitBoard = MagicBitBoards.RookAttackTable(ownKingSquare)(
       (((board.occupationAll & MagicBitBoards.RookMasks(ownKingSquare)) * MagicBitBoards
-        .RookMagic(ownKingSquare)) >> (64 - MagicBitBoards.RookBits(ownKingSquare))).toInt)
+        .RookMagic(ownKingSquare)) >>> (64 - MagicBitBoards.RookBits(ownKingSquare))).toInt)
     result |= (bishopAttacks & (board.bitBoards(bishop) | board.bitBoards(queen)))
     result |= (rookAttacks & (board.bitBoards(rook) | board.bitBoards(queen)))
     // Kings

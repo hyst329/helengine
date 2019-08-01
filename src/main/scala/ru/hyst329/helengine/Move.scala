@@ -1,6 +1,7 @@
 package ru.hyst329.helengine
 
 import ru.hyst329.helengine.Global._
+import ru.hyst329.helengine.Move.squareToAlgebraic
 
 case class Move(
     from: Square,
@@ -27,6 +28,8 @@ case class Move(
       Some(this.copy(to = D8))
     case _ => None
   }
+
+  override def toString: String = s"${squareToAlgebraic(from)}${squareToAlgebraic(to)}"
 }
 
 object Move {
