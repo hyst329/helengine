@@ -44,6 +44,7 @@ case class Board(
 
   def makeMove(move: Move): Unit = {
     bitBoards(move.movingPiece) &= ~(1L << move.from)
+    bitBoards(Empty) |= (1L << move.from)
     bitBoards(if(move.promotesTo != Empty) move.promotesTo else move.movingPiece) |= (1L << move.to)
     bitBoards(move.captures) &= ~(1L << move.to)
     hash ^= MagicBitBoards.ZobristTable(move.from)(move.movingPiece)
@@ -55,22 +56,30 @@ case class Board(
       move.to match {
         case G1 => // white castles king-side
           bitBoards(WhiteRook) &= ~(1L << H1)
-          bitBoards(WhiteRook) |=  (1L << F1)
+          bitBoards(WhiteRook) |= ~(1L << F1)
+          bitBoards(Empty) |=  (1L << H1)
+          bitBoards(Empty) &= ~(1L << F1)
           hash ^= MagicBitBoards.ZobristTable(H1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(F1)(WhiteRook)
         case C1 => // white castles queen-side
           bitBoards(WhiteRook) &= ~(1L << A1)
           bitBoards(WhiteRook) |=  (1L << D1)
+          bitBoards(Empty) |=  (1L << A1)
+          bitBoards(Empty) &= ~(1L << D1)
           hash ^= MagicBitBoards.ZobristTable(A1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(D1)(WhiteRook)
         case G8 => // black castles king-side
           bitBoards(BlackRook) &= ~(1L << H8)
           bitBoards(BlackRook) |=  (1L << F8)
+          bitBoards(Empty) |=  (1L << H8)
+          bitBoards(Empty) &= ~(1L << F8)
           hash ^= MagicBitBoards.ZobristTable(H8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(F8)(BlackRook)
         case C8 => // black castles queen-side
           bitBoards(BlackRook) &= ~(1L << A8)
           bitBoards(BlackRook) |=  (1L << D8)
+          bitBoards(Empty) |=  (1L << A8)
+          bitBoards(Empty) &= ~(1L << D8)
           hash ^= MagicBitBoards.ZobristTable(A8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(D8)(BlackRook)
         case _ =>
@@ -114,6 +123,7 @@ case class Board(
     val move = moves.last
     moves.remove(moves.size - 1)
     bitBoards(move.movingPiece) |= (1L << move.from)
+    bitBoards(Empty) &= ~(1L << move.from)
     bitBoards(if(move.promotesTo != Empty) move.promotesTo else move.movingPiece) &= ~(1L << move.to)
     bitBoards(move.captures) |= (1L << move.to)
     hash ^= MagicBitBoards.ZobristTable(move.from)(move.movingPiece)
@@ -127,21 +137,29 @@ case class Board(
         case G1 => // white castles king-side
           bitBoards(WhiteRook) |=  (1L << H1)
           bitBoards(WhiteRook) &= ~(1L << F1)
+          bitBoards(Empty) &= ~(1L << H1)
+          bitBoards(Empty) |=  (1L << F1)
           hash ^= MagicBitBoards.ZobristTable(H1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(F1)(WhiteRook)
         case C1 => // white castles queen-side
           bitBoards(WhiteRook) |=  (1L << A1)
           bitBoards(WhiteRook) &= ~(1L << D1)
+          bitBoards(Empty) &= ~(1L << A1)
+          bitBoards(Empty) |=  (1L << D1)
           hash ^= MagicBitBoards.ZobristTable(A1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(D1)(WhiteRook)
         case G8 => // black castles king-side
           bitBoards(BlackRook) |=  (1L << H8)
           bitBoards(BlackRook) &= ~(1L << F8)
+          bitBoards(Empty) &= ~(1L << H8)
+          bitBoards(Empty) |=  (1L << F8)
           hash ^= MagicBitBoards.ZobristTable(H8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(F8)(BlackRook)
         case C8 => // black castles queen-side
           bitBoards(BlackRook) |=  (1L << A8)
           bitBoards(BlackRook) &= ~(1L << D8)
+          bitBoards(Empty) &= ~(1L << A8)
+          bitBoards(Empty) |=  (1L << D8)
           hash ^= MagicBitBoards.ZobristTable(A8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(D8)(BlackRook)
         case _ =>
