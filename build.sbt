@@ -16,4 +16,9 @@ graalVMNativeImageOptions := Seq(
   "--initialize-at-build-time",
   "--initialize-at-run-time=ru.hyst329.helengine.MagicBitBoards$",
   //"--allow-incomplete-classpath",
-  "--no-fallback")
+  "--no-fallback"
+)
+
+addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
+addCommandAlias("chk", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
+addCommandAlias("cvr", "; clean; coverage; test; coverageReport")

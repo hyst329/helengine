@@ -24,8 +24,10 @@ case class Board(
 
   @inline def occupationAll: BitBoard = ~bitBoards(Empty)
 
-  @inline def occupationCurrentSide: BitBoard  = if (whiteToMove) occupationWhite else occupationBlack
-  @inline def occupationOppositeSide: BitBoard = if (whiteToMove) occupationBlack else occupationWhite
+  @inline def occupationCurrentSide: BitBoard =
+    if (whiteToMove) occupationWhite else occupationBlack
+  @inline def occupationOppositeSide: BitBoard =
+    if (whiteToMove) occupationBlack else occupationWhite
 
   @inline def getPiece(square: Square): Piece = {
     val mask = 1L << square
@@ -36,7 +38,7 @@ case class Board(
   }
 
   val moves: ArrayBuffer[Move] = ArrayBuffer.empty
-  var hash: Hash = 0L
+  var hash: Hash               = 0L
   // Hash init block
   AllSquares.foreach { square =>
     hash ^= MagicBitBoards.ZobristTable(square)(getPiece(square.toByte))
@@ -45,7 +47,7 @@ case class Board(
   def makeMove(move: Move): Unit = {
     bitBoards(move.movingPiece) &= ~(1L << move.from)
     bitBoards(Empty) |= (1L << move.from)
-    bitBoards(if(move.promotesTo != Empty) move.promotesTo else move.movingPiece) |= (1L << move.to)
+    bitBoards(if (move.promotesTo != Empty) move.promotesTo else move.movingPiece) |= (1L << move.to)
     bitBoards(move.captures) &= ~(1L << move.to)
     hash ^= MagicBitBoards.ZobristTable(move.from)(move.movingPiece)
     hash ^= MagicBitBoards.ZobristTable(move.to)(move.captures)
@@ -57,28 +59,28 @@ case class Board(
         case G1 => // white castles king-side
           bitBoards(WhiteRook) &= ~(1L << H1)
           bitBoards(WhiteRook) |= ~(1L << F1)
-          bitBoards(Empty) |=  (1L << H1)
+          bitBoards(Empty) |= (1L << H1)
           bitBoards(Empty) &= ~(1L << F1)
           hash ^= MagicBitBoards.ZobristTable(H1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(F1)(WhiteRook)
         case C1 => // white castles queen-side
           bitBoards(WhiteRook) &= ~(1L << A1)
-          bitBoards(WhiteRook) |=  (1L << D1)
-          bitBoards(Empty) |=  (1L << A1)
+          bitBoards(WhiteRook) |= (1L << D1)
+          bitBoards(Empty) |= (1L << A1)
           bitBoards(Empty) &= ~(1L << D1)
           hash ^= MagicBitBoards.ZobristTable(A1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(D1)(WhiteRook)
         case G8 => // black castles king-side
           bitBoards(BlackRook) &= ~(1L << H8)
-          bitBoards(BlackRook) |=  (1L << F8)
-          bitBoards(Empty) |=  (1L << H8)
+          bitBoards(BlackRook) |= (1L << F8)
+          bitBoards(Empty) |= (1L << H8)
           bitBoards(Empty) &= ~(1L << F8)
           hash ^= MagicBitBoards.ZobristTable(H8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(F8)(BlackRook)
         case C8 => // black castles queen-side
           bitBoards(BlackRook) &= ~(1L << A8)
-          bitBoards(BlackRook) |=  (1L << D8)
-          bitBoards(Empty) |=  (1L << A8)
+          bitBoards(BlackRook) |= (1L << D8)
+          bitBoards(Empty) |= (1L << A8)
           bitBoards(Empty) &= ~(1L << D8)
           hash ^= MagicBitBoards.ZobristTable(A8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(D8)(BlackRook)
@@ -124,7 +126,7 @@ case class Board(
     moves.remove(moves.size - 1)
     bitBoards(move.movingPiece) |= (1L << move.from)
     bitBoards(Empty) &= ~(1L << move.from)
-    bitBoards(if(move.promotesTo != Empty) move.promotesTo else move.movingPiece) &= ~(1L << move.to)
+    bitBoards(if (move.promotesTo != Empty) move.promotesTo else move.movingPiece) &= ~(1L << move.to)
     bitBoards(move.captures) |= (1L << move.to)
     hash ^= MagicBitBoards.ZobristTable(move.from)(move.movingPiece)
     hash ^= MagicBitBoards.ZobristTable(move.to)(move.captures)
@@ -135,31 +137,31 @@ case class Board(
       // castling, so we need to move the rook, not only the king
       move.to match {
         case G1 => // white castles king-side
-          bitBoards(WhiteRook) |=  (1L << H1)
+          bitBoards(WhiteRook) |= (1L << H1)
           bitBoards(WhiteRook) &= ~(1L << F1)
           bitBoards(Empty) &= ~(1L << H1)
-          bitBoards(Empty) |=  (1L << F1)
+          bitBoards(Empty) |= (1L << F1)
           hash ^= MagicBitBoards.ZobristTable(H1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(F1)(WhiteRook)
         case C1 => // white castles queen-side
-          bitBoards(WhiteRook) |=  (1L << A1)
+          bitBoards(WhiteRook) |= (1L << A1)
           bitBoards(WhiteRook) &= ~(1L << D1)
           bitBoards(Empty) &= ~(1L << A1)
-          bitBoards(Empty) |=  (1L << D1)
+          bitBoards(Empty) |= (1L << D1)
           hash ^= MagicBitBoards.ZobristTable(A1)(WhiteRook)
           hash ^= MagicBitBoards.ZobristTable(D1)(WhiteRook)
         case G8 => // black castles king-side
-          bitBoards(BlackRook) |=  (1L << H8)
+          bitBoards(BlackRook) |= (1L << H8)
           bitBoards(BlackRook) &= ~(1L << F8)
           bitBoards(Empty) &= ~(1L << H8)
-          bitBoards(Empty) |=  (1L << F8)
+          bitBoards(Empty) |= (1L << F8)
           hash ^= MagicBitBoards.ZobristTable(H8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(F8)(BlackRook)
         case C8 => // black castles queen-side
-          bitBoards(BlackRook) |=  (1L << A8)
+          bitBoards(BlackRook) |= (1L << A8)
           bitBoards(BlackRook) &= ~(1L << D8)
           bitBoards(Empty) &= ~(1L << A8)
-          bitBoards(Empty) |=  (1L << D8)
+          bitBoards(Empty) |= (1L << D8)
           hash ^= MagicBitBoards.ZobristTable(A8)(BlackRook)
           hash ^= MagicBitBoards.ZobristTable(D8)(BlackRook)
         case _ =>
@@ -177,11 +179,15 @@ case class Board(
   @inline def switchSides(): Unit = this.whiteToMove = !this.whiteToMove
 
   override def toString: String = {
-    (7 to 0 by -1).map { rank =>
-      (0 to 7).map { file =>
-        Global.PieceLetters(getPiece(rank * 8 + file))
-      }.mkString("")
-    }.mkString("/")
+    (7 to 0 by -1)
+      .map { rank =>
+        (0 to 7)
+          .map { file =>
+            Global.PieceLetters(getPiece(rank * 8 + file))
+          }
+          .mkString("")
+      }
+      .mkString("/")
       .replace("________", "8")
       .replace("_______", "7")
       .replace("______", "6")

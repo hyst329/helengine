@@ -104,18 +104,18 @@ object Global {
 
   // Piece letters for FEN
   val PieceLetters: Map[Piece, Char] = Map(
-    WhitePawn -> 'P',
+    WhitePawn   -> 'P',
     WhiteKnight -> 'N',
     WhiteBishop -> 'B',
-    WhiteRook -> 'R',
-    WhiteQueen -> 'Q',
-    WhiteKing -> 'K',
-    BlackPawn -> 'p',
+    WhiteRook   -> 'R',
+    WhiteQueen  -> 'Q',
+    WhiteKing   -> 'K',
+    BlackPawn   -> 'p',
     BlackKnight -> 'n',
     BlackBishop -> 'b',
-    BlackRook -> 'r',
-    BlackQueen -> 'q',
-    BlackKing -> 'k',
-    Empty -> '_'
+    BlackRook   -> 'r',
+    BlackQueen  -> 'q',
+    BlackKing   -> 'k',
+    Empty       -> '_'
   )
 }

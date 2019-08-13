@@ -251,7 +251,8 @@ object MagicBitBoards {
         .order(ByteOrder.LITTLE_ENDIAN)
         .asLongBuffer()
         .get(ZobristTable(square))
-      ZobristTable(square).indices.foreach(idx => ZobristTable(square)(idx) = Math.abs(ZobristTable(square)(idx)))
+      ZobristTable(square).indices
+        .foreach(idx => ZobristTable(square)(idx) = Math.abs(ZobristTable(square)(idx)))
     }
   }
 }

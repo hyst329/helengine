@@ -13,7 +13,8 @@ class EngineInitTest extends FlatSpec with Matchers with OptionValues {
 
     // bishop on b1, with e4 occupied
     val occupationE4 = 1L << E4
-    val index = (occupationE4 * MagicBitBoards.BishopMagic(B1) >>> (64 - MagicBitBoards.BishopBits(B1))).toInt
+    val index =
+      (occupationE4 * MagicBitBoards.BishopMagic(B1) >>> (64 - MagicBitBoards.BishopBits(B1))).toInt
     "%016x".format(MagicBitBoards.BishopAttackTable(B1)(index)) shouldBe "0000000010080500"
   }
 
